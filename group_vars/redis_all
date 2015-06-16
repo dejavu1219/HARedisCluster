@@ -1,0 +1,10 @@
+---
+
+master: 192.168.31.11 
+main_name: redis
+main_version: 3.0.2
+deploy_base: /mnt/deploy
+proxy_name: nutcracker
+proxy_version: v0.4.0
+proxy_ha_app: beholder
+exec_dir: /usr/bin

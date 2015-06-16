@@ -1,0 +1,20 @@
+---
+
+- hosts: redis_all
+  user: ubuntu
+  sudo: yes
+  roles:
+    - role: redis_common 
+
+- hosts: redis_master
+  user: ubuntu
+  sudo: yes
+  roles:
+    - role: redis_master
+
+- hosts: redis_slave
+  user: ubuntu
+  sudo: yes
+  roles:
+    - role: redis_slave
+

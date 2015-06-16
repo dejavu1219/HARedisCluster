@@ -1,0 +1,61 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: Serekh
+# Required-Start:		$syslog $remote_fs
+# Required-Stop:		$syslog $remote_fs
+# Should-Start:			$local_fs
+# Should-Stop:			$local_fs
+# Default-Start:		2 3 4 5
+# Default-Stop:			0 1 6
+# Short-Description:	Agent for twemproxy to work with a redis sentinel
+# Description:				Agent for twemproxy to work with a redis sentinel to provide support for failover
+### END INIT INFO
+
+EXEC={{ exec_dir }}/beholder.py
+
+PIDFILE=/var/run/twemproxy/beholder.pid
+CONF="{{ deploy_base }}/{{ proxy_ha_app }}/beholder.conf"
+
+case "$1" in
+    start)
+        if [ -f $PIDFILE ]
+        then
+                echo "$PIDFILE exists, process is already running or crashed"
+        else
+                echo "Starting Beholder..."
+                python $EXEC $PIDFILE $CONF > /dev/null 2>&1 & 
+        fi
+        ;;
+    stop)
+        if [ ! -f $PIDFILE ]
+        then
+                echo "$PIDFILE does not exist, process is not running"
+        else
+                PID=$(cat $PIDFILE)
+                echo "Stopping ..."
+                kill ${PID}
+                while [ -x /proc/${PID} ]
+                do
+                    echo "Waiting for Beholder to shutdown ..."
+                    sleep 1
+                done
+                echo "Beholder stopped"
+        fi
+        ;;
+		restart)
+				${0} stop
+				${0} start
+				;;
+		status)
+				if [ -s $PIDFILE ]
+				then
+					echo "Beholder is running ..."
+				else
+					echo "Beholder is not running ..."
+				fi
+				;;
+    *)
+        echo "Please use start or stop as first argument"
+        ;;
+esac
+

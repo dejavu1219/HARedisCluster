@@ -1,0 +1,107 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides: redis
+# Required-Start:	$syslog $remote_fs
+# Required-Stop:	$syslog $remote_fs
+# Should-Start:		$local_fs
+# Should-Stop:		$local_fs
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:		twemproxy - proxy for redis-server
+# Description:					twemproxy - proxy for redis-server
+### END INIT INFO
+# Authored by Bean He
+# Version 1.0
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+cfg_dir={{ deploy_base }}/{{ proxy_name }}
+cfg_file=${cfg_dir}/settings.yml
+pid_dir=/var/run/twemproxy
+pid_file=${pid_dir}/twemproxy.pid
+log_dir=/var/log/twemproxy
+log_file=${log_dir}/twemproxy.log
+nutcracker={{ exec_dir }}/{{ proxy_name }}
+
+if [ x"${nutcracker}" == x"" ];then
+	echo "Command 'nutcracker' not found ..."
+	exit 1
+fi
+
+if [ ! -d ${cfg_dir} ];then
+	mkdir -p ${cfg_dir}
+fi
+
+if [ ! -d ${pid_dir} ];then
+	mkdir -p ${pid_dir}
+fi
+
+if [ ! -d ${log_dir} ];then
+	mkdir -p ${log_dir}
+fi
+
+
+START(){
+	touch ${pid_file}
+	if [ ! -s ${pid_file} ];then
+		${nutcracker} -d -o ${log_file} -p ${pid_file} -c ${cfg_file}
+		sleep 1
+		`which pidof` nutcracker > ${pid_file}
+		if [ -s ${pid_file} ];then
+			echo -e "Start running \e[32m[OK]\e[0m, PID: $(cat ${pid_file})"
+		else
+			echo -e "Start running \e[31m[Failed]\e[0m"
+			return 1
+		fi
+	else
+		echo "Already running, PID: $(cat ${pid_file})"
+		return 0
+	fi
+}
+
+STOP(){
+	pid=`cat ${pid_file}`
+	if [ -s ${pid_file} ];then
+		if  ps -ef | awk '{print $2}' | grep -v grep | grep -qw ${pid} ;then
+			kill -9 ${pid} > /dev/null
+			if [ $? -eq 0 ];then
+				echo -e "Stop running \e[32m[OK]\e[0m"
+				> ${pid_file}
+			else
+				echo -e "Stop running \e[31m[Failed]\e[0m"
+				return 1
+			fi
+		else
+			echo "Already stopped ..."
+			> ${pid_file}
+		fi
+	else
+		echo "Already stopped ..."
+	fi
+}
+
+STATUS(){
+	pid=`cat ${pid_file}`
+	if [ -s ${pid_file} ];then
+		echo -e "Already running, PID: ${pid}"
+	else
+		echo -e "Already stopped ..."
+	fi
+}
+
+case $1 in
+	start)
+		START
+	;;
+	stop)
+		STOP
+	;;
+	status)
+		STATUS
+	;;
+	restart)
+		STOP && START
+	;;
+	*)
+		echo "Usage: $0 {start|stop|status|restart}"
+	;;
+esac

@@ -1,0 +1,12 @@
+beholder:
+  log_file: "/var/log/twemproxy/beholder.log"
+  connect_retry_count: -1 # -1 to unlimited
+  connect_retry_interval: 1000 # Milliseconds
+
+redis:
+  sentinel_ip: "127.0.0.1"
+  sentinel_port: 26379
+
+twemproxy:
+  config_file: "{{ deploy_base }}/{{ proxy_name }}/settings.yml"
+  restart_command: "/etc/init.d/twemproxy restart"

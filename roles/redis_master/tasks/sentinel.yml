@@ -1,0 +1,20 @@
+---
+
+- name: Copy sentinel config file
+  template: src=sentinel.conf.j2 dest={{ deploy_base }}/{{ main_name }}/sentinel.conf mode=0644
+
+- name: Install upstart config
+  template: src=sentinel.upstart.j2 dest=/etc/init.d/sentinel mode=0755
+
+- name: Add to service
+  action: shell update-rc.d sentinel defaults
+
+- name: Enable service
+  service: name=sentinel enabled=yes
+
+- name: Stop sentinel
+  service: name=sentinel state=stopped
+
+- name: Start sentinel
+  service: name=sentinel state=started
+
