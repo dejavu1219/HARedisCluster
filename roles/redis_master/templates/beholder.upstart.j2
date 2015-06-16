@@ -42,18 +42,18 @@ case "$1" in
                 echo "Beholder stopped"
         fi
         ;;
-		restart)
-				${0} stop
-				${0} start
-				;;
-		status)
-				if [ -s $PIDFILE ]
-				then
-					echo "Beholder is running ..."
-				else
-					echo "Beholder is not running ..."
-				fi
-				;;
+    restart)
+        ${0} stop
+        ${0} start
+        ;;
+    status)
+        if [ -s $PIDFILE ]
+        then
+          echo "Beholder is running ..."
+        else
+          echo "Beholder is not running ..."
+        fi
+        ;;
     *)
         echo "Please use start or stop as first argument"
         ;;

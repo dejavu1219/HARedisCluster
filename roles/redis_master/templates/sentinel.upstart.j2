@@ -30,9 +30,11 @@ set -e
 case "$1" in
   start)
 	echo -n "Starting $DESC: "
+	mkdir -p $RUNDIR
 	touch $PIDFILE
+	chown redis:redis $RUNDIR $PIDFILE $LOGDIR $LOGFILE
 	chmod 755 $RUNDIR
-	if $DAEMON $DAEMON_ARGS >> $LOGFILE 2>&1 &
+	if start-stop-daemon --start --quiet --umask 007 --chuid redis:redis --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_ARGS >> $LOGFILE &
 	then
 		echo "$NAME."
 	else
@@ -42,7 +44,7 @@ case "$1" in
 	;;
   stop)
 	echo -n "Stopping $DESC: "
-	if [ -s $PIDFILE ] && kill -9 `cat $PIDFILE` 
+	if start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON
 	then
 		echo "$NAME."
 	else
@@ -58,7 +60,7 @@ case "$1" in
 
   status)
 	echo -n "$DESC is "
-	if [ -s $PIDFILE ] && ps -ef | grep -v grep | grep -qw `cat $PIDFILE`
+	if start-stop-daemon --stop --quiet --signal 0 --name $NAME --pidfile $PIDFILE 
 	then
 		echo "running"
 	else

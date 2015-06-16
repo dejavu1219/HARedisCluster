@@ -1,6 +1,6 @@
 ---
 
-master: 192.168.31.11 
+master: 192.168.21.151 
 main_name: redis
 main_version: 3.0.2
 deploy_base: /mnt/deploy

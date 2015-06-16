@@ -1,7 +1,7 @@
 ---
 
 - name: Copy sentinel config file
-  template: src=sentinel.conf.j2 dest={{ deploy_base }}/{{ main_name }}/sentinel.conf mode=0644
+  template: src=sentinel.conf.j2 dest={{ deploy_base }}/{{ main_name }}/sentinel.conf owner=redis group=redis mode=0644
 
 - name: Install upstart config
   template: src=sentinel.upstart.j2 dest=/etc/init.d/sentinel mode=0755

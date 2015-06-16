@@ -1,7 +1,7 @@
 ---
 
 - name: Create config file
-  template: src=redis.conf.j2 dest={{ deploy_base }}/{{ main_name }}/redis.conf mode=0644
+  template: src=redis.conf.j2 dest={{ deploy_base }}/{{ main_name }}/redis.conf owner=redis group=redis mode=0644
   tags: configuration
 
 - name: Stop redis

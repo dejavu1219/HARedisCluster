@@ -24,13 +24,13 @@
   action: shell cp {{ deploy_base }}/{{ proxy_name }}/src/{{ proxy_name }} {{ exec_dir }}/{{ proxy_name }} creates={{ exec_dir }}/{{ proxy_name }}
 
 - name: Create var dirs
-  action: file path={{ item }} owner=root group=root state=directory
+  action: file path={{ item }} owner=redis group=redis state=directory
   with_items:
   - /var/log/twemproxy
   - /var/run/twemproxy
 
 - name: Create settings
-  template: src=settings.yml.j2 dest={{ deploy_base }}/{{ proxy_name }}/settings.yml mode=0644
+  template: src={{ proxy_name }}.yml.j2 dest={{ deploy_base }}/{{ proxy_name }}/{{ proxy_name }}.yml owner=redis group=redis mode=0644
   tags: configuration
 
 - name: Install upstart config
