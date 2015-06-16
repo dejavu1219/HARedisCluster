@@ -3,7 +3,8 @@ redis_master
 redis_slave
 
 [redis_master]
-15.125.126.129
+192.168.31.11
 
 [redis_slave]
-15.125.125.66
+192.168.31.12
+192.168.31.13
