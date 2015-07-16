@@ -1,0 +1,30 @@
+---
+- name: Install dependencies 
+  pip: name={{ item }} extra_args='-i http://mirrors.aliyun.com/pypi/simple/' 
+  with_items:
+  - redis
+  - pyyaml
+
+- name: Retrieve beholder
+  action: git repo=https://github.com/Serekh/{{ proxy_ha_app }}.git dest={{ deploy_base }}/{{ proxy_ha_app }} force=yes
+
+- name: Create symlink
+  action: file path={{ exec_dir }}/{{ proxy_ha_app }}.py src={{ deploy_base }}/{{ proxy_ha_app }}/src/{{ proxy_ha_app }}.py state=link
+
+- name: Template config file
+  action: template src=beholder.yml.j2 dest={{ deploy_base }}/{{ proxy_ha_app }}/beholder.conf mode=0644
+
+- name: Template upstart file
+  action: template src=beholder.upstart.j2 dest=/etc/init.d/beholder mode=0755
+
+- name: Add beholder to service
+  action: shell update-rc.d beholder defaults
+
+- name: Enable service
+  action: service name=beholder enabled=yes
+
+- name: Stop beholder
+  service: name=beholder state=stopped
+
+- name: Start beholder
+  service: name=beholder state=started

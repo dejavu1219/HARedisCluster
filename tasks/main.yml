@@ -1,0 +1,84 @@
+---
+- name: Install dependencies
+  apt: pkg={{item}}
+  with_items:
+  - build-essential
+  - gcc
+  - tcl
+  - make
+  - git
+
+- name: Disable git ssl verification
+  shell: git config --global http.sslVerify false
+
+- name: Retrieve redis
+  command: curl -k -o /tmp/{{deploy_targz}} http://download.redis.io/releases/{{deploy_targz}} creates=/tmp/{{deploy_targz}}
+
+- name: Add redis group
+  group: name={{group}}
+
+- name: Add user redis
+  user: name={{user}} group={{group}} shell=/bin/bash home=/var/lib/redis comment="redis server"
+
+- name: Create deploy directory
+  file: path={{deploy_base}} state=directory
+
+- name: Extract code
+  shell: /bin/tar -xzf /tmp/{{deploy_targz}} && touch {{deploy_base}}/{{app_basename}}/extracted_ok chdir={{deploy_base}} creates={{deploy_base}}/{{app_basename}}/extracted_ok
+
+- name: Change owner of redis deployment directory
+  shell: chown {{user}}.{{group}} -R {{deploy_base}}/{{app_basename}}
+
+- name: Create symlink
+  file: path={{deploy_base}}/redis src={{deploy_base}}/{{app_basename}} state=link
+
+- name: Compile
+  shell: cd {{deploy_base}}/redis && make distclean && make && touch install_ok creates={{deploy_base}}/redis/installed_ok
+
+- name: Copy command scripts to /usr/bin
+  shell: if [ ! -f {{exec_dir}}/{{item}} ];then cp {{deploy_base}}/redis/src/{{item}} {{exec_dir}};fi
+  with_items:
+  - redis-server
+  - redis-benchmark
+  - redis-check-aof
+  - redis-check-dump
+  - redis-cli
+  - redis-server
+  - redis-sentinel
+  - redis-trib.rb
+
+- name: Create var dirs
+  file: path={{item}} owner={{user}} group={{group}} state=directory
+  with_items:
+  - /var/log/redis
+  - /var/run/redis
+
+- name: Install upstart config
+  template: src=redis.upstart.j2 dest=/etc/init.d/redis mode=0755
+
+- name: Add to service
+  shell: update-rc.d redis defaults
+
+- name: Enable service
+  service: name=redis enabled=yes
+
+- name: Create config file
+  template: src=redis.conf.j2 dest={{deploy_base}}/redis/redis.conf owner={{user}} group={{group}} mode=0644
+  tags: configuration
+
+- name: Restart redis
+  service: name=redis state=restarted
+
+- include: sentinel.yml
+  when: '"redis_master" in group_names'
+
+- include: twemproxy.yml
+  when: '"redis_master" in group_names'
+
+- include: beholder.yml
+  notify:
+  - Restart redis
+  - Restart sentinel
+  - Restart twemproxy
+  - Restart beholder
+  when: '"redis_master" in group_names'

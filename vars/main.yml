@@ -1,0 +1,11 @@
+---
+exec_dir: /usr/bin
+app_name: redis
+version: 3.0.2
+user: redis
+group: redis
+app_basename: "{{app_name}}-{{version}}"
+deploy_targz: "{{app_basename}}.tar.gz"
+proxy_name: nutcracker
+proxy_version: v0.4.0
+proxy_ha_app: beholder
