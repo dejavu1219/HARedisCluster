@@ -1,3 +1,0 @@
----
-- name: Redis install 
-  shell: echo "Complete" > {{ deploy_base }}/{{ main_name }}/installed_ok creates={{ deploy_base }}/{{ main_name }}/installed_ok

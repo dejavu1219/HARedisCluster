@@ -1,8 +1,0 @@
----
-
-- name: Create config file
-  template: src=redis.conf.j2 dest={{ deploy_base }}/{{ main_name }}/redis.conf mode=0644
-  tags: configuration
-  notify:
-  - Stop redis
-  - Start redis
