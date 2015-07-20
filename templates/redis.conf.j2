@@ -203,8 +203,8 @@ dir /var/lib/redis
 #    and resynchronize with them.
 #
 # slaveof <masterip> <masterport>
-{% if 'redis_slave' in group_names %}
-slaveof {{hostvars[groups['redis_master'][0]].ansible_eth0.ipv4.address}} 6379
+{% if ansible_eth0.ipv4.address in redis_slave %}
+slaveof {{redis_master}} 6379
 {% endif %}
 
 # If the master is password protected (using the "requirepass" configuration

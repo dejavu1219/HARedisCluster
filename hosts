@@ -1,9 +1,4 @@
-[redis-servers:children]
-redis_master
-redis_slave
-
-[redis_master]
+[redis-servers]
 192.168.1.10
-
-[redis_slave]
-192.168.1.6
+192.168.1.11
+192.168.1.12

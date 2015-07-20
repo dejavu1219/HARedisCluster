@@ -6,4 +6,4 @@ thumbnail:
   server_retry_timeout: 30000
   server_failure_limit: 3
   servers:
-  - {{hostvars[groups['redis_master'][0]].ansible_eth0.ipv4.address}}:6379:1 mymaster
+  - {{redis_master}}:6379:1 mymaster

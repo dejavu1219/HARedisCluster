@@ -70,10 +70,10 @@
   service: name=redis state=restarted
 
 - include: sentinel.yml
-  when: '"redis_master" in group_names'
+  when: "'{{ansible_eth0.ipv4.address}}' == '{{redis_master}}'"
 
 - include: twemproxy.yml
-  when: '"redis_master" in group_names'
+  when: "'{{ansible_eth0.ipv4.address}}' == '{{redis_master}}'"
 
 - include: beholder.yml
   notify:
@@ -81,4 +81,4 @@
   - Restart sentinel
   - Restart twemproxy
   - Restart beholder
-  when: '"redis_master" in group_names'
+  when: "'{{ansible_eth0.ipv4.address}}' == '{{redis_master}}'"

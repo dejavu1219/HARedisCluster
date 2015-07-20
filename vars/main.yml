@@ -1,4 +1,6 @@
 ---
+redis_master: "{{groups['redis-servers'][0]}}"
+redis_slave: "{{groups['redis-servers'][1::]}}"
 exec_dir: /usr/bin
 app_name: redis
 version: 3.0.2
